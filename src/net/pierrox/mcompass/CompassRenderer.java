@@ -13,10 +13,6 @@ import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
-/**
- * Render a pair of tumbling cubes.
- */
-
 class CompassRenderer implements GLSurfaceView.Renderer, SensorEventListener {
     private Turntable mTurnTable;
 	private SensorManager mSensorManager;
@@ -92,7 +88,6 @@ class CompassRenderer implements GLSurfaceView.Renderer, SensorEventListener {
          mTurnTable.buildTextures(gl);
     }
     
-    @Override
     public void onSensorChanged(SensorEvent event) {
     	if(event.sensor==mOrientationSensor) {
     		if(mNumAngles==RING_BUFFER_SIZE) {
@@ -120,7 +115,6 @@ class CompassRenderer implements GLSurfaceView.Renderer, SensorEventListener {
     	}
     }
 
-	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		
 	}
