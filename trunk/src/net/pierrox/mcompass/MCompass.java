@@ -5,32 +5,30 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
 public class MCompass extends Activity {
-    /** Called when the activity is first created. */
+    private CompassRenderer mCompassRenderer;
+    private GLSurfaceView mGLSurfaceView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Create our Preview view and set it as the content of our
-        // Activity
+        mCompassRenderer = new CompassRenderer(this);
         mGLSurfaceView = new GLSurfaceView(this);
-        mGLSurfaceView.setRenderer(new CompassRenderer());
+        mGLSurfaceView.setRenderer(mCompassRenderer);
         setContentView(mGLSurfaceView);
     }
     
     @Override
     protected void onResume() {
-        // Ideally a game should implement onResume() and onPause()
-        // to take appropriate action when the activity looses focus
         super.onResume();
         mGLSurfaceView.onResume();
+        mCompassRenderer.onResume();
     }
 
     @Override
     protected void onPause() {
-        // Ideally a game should implement onResume() and onPause()
-        // to take appropriate action when the activity looses focus
         super.onPause();
         mGLSurfaceView.onPause();
+        mCompassRenderer.onPause();
     }
-    private GLSurfaceView mGLSurfaceView;
 }
