@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
-import android.opengl.GLUtils;
 
 public class Turntable {
 	private static final int DETAIL_X=25;

@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2007 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package net.pierrox.mcompass;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -21,45 +5,61 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 /**
  * Render a pair of tumbling cubes.
  */
 
-class CompassRenderer implements GLSurfaceView.Renderer {
+class CompassRenderer implements GLSurfaceView.Renderer, SensorEventListener {
     private Turntable mTurnTable;
+	private SensorManager mSensorManager;
+	private float mAngles[];
+	private Context mContext;
+	private Sensor mOrientationSensor;
+	private float[][] mAnglesRingBuffer;
+	private int mNumAngles;
+	private int mRingBufferIndex;
+	static private final int RING_BUFFER_SIZE=10; 
     
-    public CompassRenderer() {
+    public CompassRenderer(Context context) {
+    	mContext = context;
         mTurnTable = new Turntable();
+        
+        mNumAngles=0;
+        mRingBufferIndex=0;
+        mAnglesRingBuffer=new float[RING_BUFFER_SIZE][3];
+        mAngles=new float[3];
+        mAngles[0]=0;
+        mAngles[1]=0;
+        mAngles[2]=0;
+        
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+        
+        mOrientationSensor=mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     public void onDrawFrame(GL10 gl) {
-        /*
-         * Usually, the first thing one might want to do is to clear
-         * the screen. The most efficient way of doing this is to use
-         * glClear().
-         */
-
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-
-        /*
-         * Now we're ready to draw some 3D objects
-         */
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glTranslatef(0f, 0f, -3f);
         
-        gl.glRotatef(30f,  1, 0, 0);
-        gl.glRotatef(mAngle, 0, 1, 0);
-        //gl.glRotatef(mAngle*0.2f,  1, 0, 0);
-        
+        if(mNumAngles>0) {
+        	gl.glRotatef(mAngles[1]/mNumAngles+90,  1, 0, 0);
+        	gl.glRotatef(-mAngles[2]/mNumAngles, 0, 0, 1);
+        	gl.glRotatef(mAngles[0]/mNumAngles+180, 0, 1, 0);
+        }
         
         mTurnTable.draw(gl);
-
-        mAngle += 1f;
     }
 
     public int[] getConfigSpec() {
@@ -73,12 +73,6 @@ class CompassRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
          gl.glViewport(0, 0, width, height);
 
-         /*
-          * Set our projection matrix. This doesn't have to be done
-          * each time we draw, but usually a new projection needs to
-          * be set when the viewport is resized.
-          */
-
          float ratio = (float) width / height;
          gl.glMatrixMode(GL10.GL_PROJECTION);
          gl.glLoadIdentity();
@@ -86,17 +80,6 @@ class CompassRenderer implements GLSurfaceView.Renderer {
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        /*
-         * By default, OpenGL enables features that improve quality
-         * but reduce performance. One might want to tweak that
-         * especially on software renderer.
-         */
-        //gl.glDisable(GL10.GL_DITHER);
-
-        /*
-         * Some one-time OpenGL initialization can be made here
-         * probably based on features of this particular context
-         */
          gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_NICEST);
 
       	 gl.glClearColor(0,0,1,1);
@@ -108,7 +91,45 @@ class CompassRenderer implements GLSurfaceView.Renderer {
          
          mTurnTable.buildTextures(gl);
     }
-     
     
-    private float mAngle;
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+    	if(event.sensor==mOrientationSensor) {
+    		if(mNumAngles==RING_BUFFER_SIZE) {
+	    		mAngles[0]-=mAnglesRingBuffer[mRingBufferIndex][0];
+	    		mAngles[1]-=mAnglesRingBuffer[mRingBufferIndex][1];
+	    		mAngles[2]-=mAnglesRingBuffer[mRingBufferIndex][2];
+    		} else {
+    			mNumAngles++;
+    		}
+    		
+    		mAnglesRingBuffer[mRingBufferIndex][0]=event.values[0];
+    		mAnglesRingBuffer[mRingBufferIndex][1]=event.values[1];
+    		mAnglesRingBuffer[mRingBufferIndex][2]=event.values[2];
+    		
+    		mAngles[0]+=mAnglesRingBuffer[mRingBufferIndex][0];
+    		mAngles[1]+=mAnglesRingBuffer[mRingBufferIndex][1];
+    		mAngles[2]+=mAnglesRingBuffer[mRingBufferIndex][2];
+    		
+    		//Log.i("mcompass", "0:"+mAngles[0]+", 1:"+mAngles[1]+", 2:"+mAngles[2]);
+    		
+    		mRingBufferIndex++;
+    		if(mRingBufferIndex==RING_BUFFER_SIZE) {
+    			mRingBufferIndex=0;
+    		}
+    	}
+    }
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		
+	}
+
+	public void onResume() {
+		mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
+	}
+
+	public void onPause() {
+		mSensorManager.unregisterListener(this, mOrientationSensor);
+	}
 }
