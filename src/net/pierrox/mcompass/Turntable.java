@@ -27,15 +27,18 @@ public class Turntable {
 	private int[] mTextures;
 
 	private IntBuffer mRingVertexBuffer;
-	private IntBuffer mCapVertexBuffer;
-	private IntBuffer mDialVertexBuffer;
-	
+	private IntBuffer mRingNormalBuffer;
 	private IntBuffer mRingTexCoordBuffer;
-	private IntBuffer mDialTexCoordBuffer;
-	
 	private ByteBuffer mRingIndexBuffer;
-	private ByteBuffer mCapIndexBuffer;
+	
+	private IntBuffer mDialVertexBuffer;
+	private IntBuffer mDialNormalBuffer;
+	private IntBuffer mDialTexCoordBuffer;
 	private ByteBuffer mDialIndexBuffer;
+	
+	private IntBuffer mCapVertexBuffer;
+	private ByteBuffer mCapIndexBuffer;
+	
     
 	public Turntable() {
 		buildRingObject();
@@ -46,6 +49,7 @@ public class Turntable {
 	void buildRingObject() {
 		// build vertices
 		int vertices[]=new int[((DETAIL_X+1)*(RING_HEIGHT+1))*3];
+		int normals[]=new int[((DETAIL_X+1)*(RING_HEIGHT+1))*3];
 		int n=0;
         for(int i=0; i<=DETAIL_X; i++) {
         	for(int j=0; j<=RING_HEIGHT; j++) {
@@ -56,9 +60,13 @@ public class Turntable {
 	        	double y = -Math.sin(b);
 	        	double z = Math.cos(a)*Math.cos(b);
 	        	
-	        	vertices[n++] = (int) (x*65536);
-	        	vertices[n++] = (int) (y*65536);
-	        	vertices[n++] = (int) (z*65536);
+	        	vertices[n] = (int) (x*65536);
+	        	vertices[n+1] = (int) (y*65536);
+	        	vertices[n+2] = (int) (z*65536);
+	        	normals[n] = vertices[n];
+	        	normals[n+1] = vertices[n+1];
+	        	normals[n+2] = vertices[n+2];
+	        	n+=3;
         	}
         }
         
@@ -93,6 +101,12 @@ public class Turntable {
         mRingVertexBuffer = vbb.asIntBuffer();
         mRingVertexBuffer.put(vertices);
         mRingVertexBuffer.position(0);
+        
+        ByteBuffer nbb = ByteBuffer.allocateDirect(normals.length*4);
+        nbb.order(ByteOrder.nativeOrder());
+        mRingNormalBuffer = nbb.asIntBuffer();
+        mRingNormalBuffer.put(normals);
+        mRingNormalBuffer.position(0);
         
         mRingIndexBuffer = ByteBuffer.allocateDirect(indices.length);
         mRingIndexBuffer.put(indices);
@@ -156,20 +170,29 @@ public class Turntable {
 	void buildDialObject() {
         // build vertices
 		int vertices[]=new int[(DETAIL_X+2)*3];
+		int normals[]=new int[(DETAIL_X+2)*3];
 		int n=0;
 		// center of the dial
-        vertices[n++] = 0;
-        vertices[n++] = 0;
-        vertices[n++] = 0;
+        vertices[n] = 0;
+        vertices[n+1] = 0;
+        vertices[n+2] = 0;
+        normals[n] = 0;
+        normals[n+1] = 1<<16;
+        normals[n+2] = 0;
+        n+=3;
 		for(int i=0; i<=DETAIL_X; i++) {
 	        double a = i*(Math.PI*2)/DETAIL_X;
 	
 	        double x = Math.sin(a);
 	        double z = Math.cos(a);
 	        	
-        	vertices[n++] = (int) (x*65536);
-        	vertices[n++] = 0;
-        	vertices[n++] = (int) (z*65536);
+        	vertices[n] = (int) (x*65536);
+        	vertices[n+1] = 0;
+        	vertices[n+2] = (int) (z*65536);
+        	normals[n] = 0;
+        	normals[n+1] = 1<<16;
+        	normals[n+2] = 0;
+        	n+=3;
         }
         
         // build textures coordinates
@@ -200,6 +223,12 @@ public class Turntable {
         mDialVertexBuffer.put(vertices);
         mDialVertexBuffer.position(0);
         
+        ByteBuffer nbb = ByteBuffer.allocateDirect(normals.length*4);
+        nbb.order(ByteOrder.nativeOrder());
+        mDialNormalBuffer = nbb.asIntBuffer();
+        mDialNormalBuffer.put(normals);
+        mDialNormalBuffer.position(0);
+        
         mDialIndexBuffer = ByteBuffer.allocateDirect(indices.length);
         mDialIndexBuffer.put(indices);
         mDialIndexBuffer.position(0);
@@ -218,23 +247,28 @@ public class Turntable {
 		// common parameters for the ring and the dial
 		gl.glEnable(GL10.GL_TEXTURE_2D);
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        
         gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		gl.glColor4x(1<<16, 1<<16, 1<<16, 1<<16);
-		gl.glScalex(100000, 100000, 100000);
+		gl.glScalex(110000, 110000, 110000);
 		
 		// draw the ring
+		gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
         gl.glBindTexture(GL10.GL_TEXTURE_2D, mTextures[TEXTURE_RING]);
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, mRingVertexBuffer);
+        gl.glNormalPointer(GL10.GL_FIXED, 0, mRingNormalBuffer);
 		gl.glTexCoordPointer(2, GL10.GL_FIXED, 0, mRingTexCoordBuffer);
 		gl.glDrawElements(GL10.GL_TRIANGLES, DETAIL_X*RING_HEIGHT*6, GL10.GL_UNSIGNED_BYTE, mRingIndexBuffer);
-				
+		
 		// draw the dial
 		gl.glFrontFace(GL10.GL_CCW);
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, mTextures[TEXTURE_DIAL]);
 		gl.glVertexPointer(3, GL10.GL_FIXED, 0, mDialVertexBuffer);
+		gl.glNormalPointer(GL10.GL_FIXED, 0, mDialNormalBuffer);
 		gl.glTexCoordPointer(2, GL10.GL_FIXED, 0, mDialTexCoordBuffer);
 		gl.glDrawElements(GL10.GL_TRIANGLE_FAN, DETAIL_X+2, GL10.GL_UNSIGNED_BYTE, mDialIndexBuffer);
-        
+		gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
+		
 		// draw the cap
 		gl.glFrontFace(GL10.GL_CW);
 		gl.glColor4x(0<<16, 0<<16, 0<<16, 1<<16);
@@ -299,7 +333,7 @@ public class Turntable {
         for(int d=0; d<360; d+=30) {
         	// do not draw 0/90/180/270
         	int pos=d*length/360;
-        	if(d%90!=0) canvas.drawText(Integer.toString(d), pos, 30, p);
+        	if(d%90!=0) canvas.drawText(Integer.toString(360-d), pos, 30, p);
         }
         
         // draw N/O/S/E
@@ -394,12 +428,12 @@ public class Turntable {
         for(int i=0; i<360; i+=30) {
         	// do not draw 0/90/180/270
         	if((i%90)!=0) {
-	        	double a = i*(Math.PI*2)/360;
+	        	double a = -i*(Math.PI*2)/360;
 	        	float x = (float)(Math.sin(a)*0.7*radius+radius);
 	    	    float y = (float)(Math.cos(a)*0.7*radius+radius);
 	    	    
 	        	canvas.save();
-	        	canvas.rotate(-i, x, y);
+	        	canvas.rotate(i, x, y);
 	        	canvas.drawText(Integer.toString(i), x, y, p);
 	        	canvas.restore();
         	}

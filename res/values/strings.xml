@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Marine Compass</string>
+<string name="app_description">A marine compass that always stays parallel to the floor</string>
 </resources>
