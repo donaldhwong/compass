@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Pierre Hébert <pierrox@pierrox.net>
+ * Copyright (C) 2009 Pierre Hï¿½bert <pierrox@pierrox.net>
  * http://www.pierrox.net/mcompass/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,25 +81,24 @@ public class MCompass extends Activity implements SensorEventListener {
         
         setContentView(layout);
         
-        // watch for orientation changes
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mOrientationSensor=mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
+        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
         mGLSurfaceView.onResume();
     }
 
     @Override
     protected void onPause() {
+    	mGLSurfaceView.onPause();
+    	mSensorManager.unregisterListener(this);
         super.onPause();
-        mGLSurfaceView.onPause();
     }
     
-    @Override
     public void onSensorChanged(SensorEvent event) {
     	if(event.sensor==mOrientationSensor) {
     		if(mNumAngles==RING_BUFFER_SIZE) {
@@ -144,7 +143,6 @@ public class MCompass extends Activity implements SensorEventListener {
     	}
     }
 
-	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		
 	}
