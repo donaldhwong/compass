@@ -39,7 +39,7 @@ public class Turntable {
 	private static final int TEXTURE_RING=0;
 	private static final int TEXTURE_DIAL=1;
 	
-	private static final String[] CARDINAL_POINTS={ "N", "0", "S", "E" };
+	private static final String[] CARDINAL_POINTS={ "N", "W", "S", "E" };
 	
 	private int[] mTextures;
 
@@ -267,7 +267,7 @@ public class Turntable {
         
         gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		gl.glColor4x(1<<16, 1<<16, 1<<16, 1<<16);
-		gl.glScalex(110000, 110000, 110000);
+		gl.glScalex(90000, 90000, 90000);
 		
 		// draw the ring
 		gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);
