@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Pierre Hébert <pierrox@pierrox.net>
+ * Copyright (C) 2009 Pierre Hï¿½bert <pierrox@pierrox.net>
  * http://www.pierrox.net/mcompass/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,14 +32,18 @@ import android.graphics.RadialGradient;
 import android.graphics.Shader;
 
 public class Turntable {
-	private static final int DETAIL_X=25;
-	private static final int DETAIL_Y=6;
-	private static final int RING_HEIGHT=2;
+	private static final int DETAIL_X[]={ 15, 25, 35 };
+	private static final int DETAIL_Y[]={ 3, 6, 9 };
+	private static final int RING_HEIGHT[]={ 2, 3, 4};
 	
 	private static final int TEXTURE_RING=0;
 	private static final int TEXTURE_DIAL=1;
 	
 	private static final String[] CARDINAL_POINTS={ "N", "W", "S", "E" };
+	
+	// preference values
+	private int mDetailsLevel;
+	private boolean mReversedRing;
 	
 	private int[] mTextures;
 
@@ -55,23 +59,41 @@ public class Turntable {
 	
 	private IntBuffer mCapVertexBuffer;
 	private ByteBuffer mCapIndexBuffer;
+
+	private boolean mNeedObjectsUpdate;
+	private boolean mNeedTextureUpdate;
 	
     
 	public Turntable() {
+		mDetailsLevel=0;
+		mReversedRing=false;
+		
+		// initially both objects and textures need to be built
+		mNeedObjectsUpdate=true;
+		mNeedTextureUpdate=true;
+	}
+	
+    private void buildObjects() {
 		buildRingObject();
 		buildCapObject();
 		buildDialObject();
+		
+		mNeedObjectsUpdate=false;
 	}
-	
+    
 	void buildRingObject() {
 		// build vertices
-		int vertices[]=new int[((DETAIL_X+1)*(RING_HEIGHT+1))*3];
-		int normals[]=new int[((DETAIL_X+1)*(RING_HEIGHT+1))*3];
+		int dx=DETAIL_X[mDetailsLevel];
+		int dy=DETAIL_Y[mDetailsLevel];
+		int rh=RING_HEIGHT[mDetailsLevel];
+		
+		int vertices[]=new int[((dx+1)*(rh+1))*3];
+		int normals[]=new int[((dx+1)*(rh+1))*3];
 		int n=0;
-        for(int i=0; i<=DETAIL_X; i++) {
-        	for(int j=0; j<=RING_HEIGHT; j++) {
-	        	double a = i*(Math.PI*2)/DETAIL_X;
-	        	double b = j*Math.PI/(DETAIL_Y*2);
+        for(int i=0; i<=dx; i++) {
+        	for(int j=0; j<=rh; j++) {
+	        	double a = i*(Math.PI*2)/dx;
+	        	double b = j*Math.PI/(dy*2);
 	
 	        	double x = Math.sin(a)*Math.cos(b);
 	        	double y = -Math.sin(b);
@@ -88,27 +110,27 @@ public class Turntable {
         }
         
         // build textures coordinates
-        int texCoords[]=new int[(DETAIL_X+1)*(RING_HEIGHT+1)*2];
+        int texCoords[]=new int[(dx+1)*(rh+1)*2];
         n=0;
-        for(int i=0; i<=DETAIL_X; i++) {
-        	for(int j=0; j<=RING_HEIGHT; j++) {
-	        	texCoords[n++] = (i<<16)/DETAIL_X;
-	        	texCoords[n++] = (j<<16)/RING_HEIGHT;
+        for(int i=0; i<=dx; i++) {
+        	for(int j=0; j<=rh; j++) {
+	        	texCoords[n++] = (i<<16)/dx;
+	        	texCoords[n++] = (j<<16)/rh;
         	}
         }
         
         // build indices
-        byte indices[]=new byte[DETAIL_X*RING_HEIGHT*3*2];
+        byte indices[]=new byte[dx*rh*3*2];
         n=0;
-        for(int i=0; i<DETAIL_X; i++) {
-        	for(int j=0; j<RING_HEIGHT; j++) {
-        		byte p0=(byte) ((RING_HEIGHT+1)*i+j);
+        for(int i=0; i<dx; i++) {
+        	for(int j=0; j<rh; j++) {
+        		byte p0=(byte) ((rh+1)*i+j);
         		indices[n++]=p0;
-            	indices[n++]=(byte) (p0+RING_HEIGHT+1);
+            	indices[n++]=(byte) (p0+rh+1);
             	indices[n++]=(byte) (p0+1);
             	
-	        	indices[n++]=(byte) (p0+RING_HEIGHT+1);
-	        	indices[n++]=(byte) (p0+RING_HEIGHT+2);
+	        	indices[n++]=(byte) (p0+rh+1);
+	        	indices[n++]=(byte) (p0+rh+2);
 	        	indices[n++]=(byte) (p0+1);
         	}
         }
@@ -137,15 +159,19 @@ public class Turntable {
 	}
 	
 	void buildCapObject() {
-        int h=DETAIL_Y-RING_HEIGHT;
+		int dx=DETAIL_X[mDetailsLevel];
+		int dy=DETAIL_Y[mDetailsLevel];
+		int rh=RING_HEIGHT[mDetailsLevel];
+		
+        int h=dy-rh;
         
 		// build vertices
-		int vertices[]=new int[((DETAIL_X+1)*(h+1))*3];
+		int vertices[]=new int[((dx+1)*(h+1))*3];
 		int n=0;
-        for(int i=0; i<=DETAIL_X; i++) {
-        	for(int j=RING_HEIGHT; j<=DETAIL_Y; j++) {
-	        	double a = i*(Math.PI*2)/DETAIL_X;
-	        	double b = j*Math.PI/(DETAIL_Y*2);
+        for(int i=0; i<=dx; i++) {
+        	for(int j=rh; j<=dy; j++) {
+	        	double a = i*(Math.PI*2)/dx;
+	        	double b = j*Math.PI/(dy*2);
 	
 	        	double x = Math.sin(a)*Math.cos(b);
 	        	double y = -Math.sin(b);
@@ -158,9 +184,9 @@ public class Turntable {
         }
                 
         // build indices
-        byte indices[]=new byte[DETAIL_X*h*3*2];
+        byte indices[]=new byte[dx*h*3*2];
         n=0;
-        for(int i=0; i<DETAIL_X; i++) {
+        for(int i=0; i<dx; i++) {
         	for(int j=0; j<h; j++) {
         		byte p0=(byte) ((h+1)*i+j);
         		indices[n++]=p0;
@@ -186,8 +212,10 @@ public class Turntable {
 	
 	void buildDialObject() {
         // build vertices
-		int vertices[]=new int[(DETAIL_X+2)*3];
-		int normals[]=new int[(DETAIL_X+2)*3];
+		int dx=DETAIL_X[mDetailsLevel];
+		
+		int vertices[]=new int[(dx+2)*3];
+		int normals[]=new int[(dx+2)*3];
 		int n=0;
 		// center of the dial
         vertices[n] = 0;
@@ -197,8 +225,8 @@ public class Turntable {
         normals[n+1] = 1<<16;
         normals[n+2] = 0;
         n+=3;
-		for(int i=0; i<=DETAIL_X; i++) {
-	        double a = i*(Math.PI*2)/DETAIL_X;
+		for(int i=0; i<=dx; i++) {
+	        double a = i*(Math.PI*2)/dx;
 	
 	        double x = Math.sin(a);
 	        double z = Math.cos(a);
@@ -213,12 +241,12 @@ public class Turntable {
         }
         
         // build textures coordinates
-        int texCoords[]=new int[(DETAIL_X+2)*2];
+        int texCoords[]=new int[(dx+2)*2];
         n=0;
         texCoords[n++] = (int)(0.5*65536);
         texCoords[n++] = (int)(0.5*65536);
-        for(int i=0; i<=DETAIL_X; i++) {
-    	    double a = i*(Math.PI*2)/DETAIL_X;
+        for(int i=0; i<=dx; i++) {
+    	    double a = i*(Math.PI*2)/dx;
     	    	
     	    double x = (Math.sin(a)+1)/2;
     	    double z = (Math.cos(a)+1)/2;
@@ -228,9 +256,9 @@ public class Turntable {
         }
         
         // build indices
-        byte indices[]=new byte[DETAIL_X+2];
+        byte indices[]=new byte[dx+2];
         n=0;
-        for(int i=0; i<=(DETAIL_X+1); i++) {
+        for(int i=0; i<=(dx+1); i++) {
         	indices[n++]=(byte)i;
         }        
 
@@ -258,6 +286,19 @@ public class Turntable {
 	}
 	
 	public void draw(GL10 gl) {
+		// rebuild objects or textures if needed
+		if(mNeedObjectsUpdate) {
+			buildObjects();
+		}
+		
+		if(mNeedTextureUpdate) {
+			buildTextures(gl);
+		}
+		
+		int dx=DETAIL_X[mDetailsLevel];
+		int dy=DETAIL_Y[mDetailsLevel];
+		int rh=RING_HEIGHT[mDetailsLevel];
+		
 		gl.glFrontFace(GL10.GL_CW);
 		gl.glColor4x(1<<16, 0<<16, 0<<16, 1<<16);
         
@@ -275,7 +316,7 @@ public class Turntable {
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, mRingVertexBuffer);
         gl.glNormalPointer(GL10.GL_FIXED, 0, mRingNormalBuffer);
 		gl.glTexCoordPointer(2, GL10.GL_FIXED, 0, mRingTexCoordBuffer);
-		gl.glDrawElements(GL10.GL_TRIANGLES, DETAIL_X*RING_HEIGHT*6, GL10.GL_UNSIGNED_BYTE, mRingIndexBuffer);
+		gl.glDrawElements(GL10.GL_TRIANGLES, dx*rh*6, GL10.GL_UNSIGNED_BYTE, mRingIndexBuffer);
 		
 		// draw the dial
 		gl.glFrontFace(GL10.GL_CCW);
@@ -283,7 +324,7 @@ public class Turntable {
 		gl.glVertexPointer(3, GL10.GL_FIXED, 0, mDialVertexBuffer);
 		gl.glNormalPointer(GL10.GL_FIXED, 0, mDialNormalBuffer);
 		gl.glTexCoordPointer(2, GL10.GL_FIXED, 0, mDialTexCoordBuffer);
-		gl.glDrawElements(GL10.GL_TRIANGLE_FAN, DETAIL_X+2, GL10.GL_UNSIGNED_BYTE, mDialIndexBuffer);
+		gl.glDrawElements(GL10.GL_TRIANGLE_FAN, dx+2, GL10.GL_UNSIGNED_BYTE, mDialIndexBuffer);
 		gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
 		
 		// draw the cap
@@ -292,17 +333,18 @@ public class Turntable {
 		gl.glDisable(GL10.GL_TEXTURE_2D);
 		gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		gl.glVertexPointer(3, GL10.GL_FIXED, 0, mCapVertexBuffer);
-		gl.glDrawElements(GL10.GL_TRIANGLES, DETAIL_X*(DETAIL_Y-RING_HEIGHT)*6, GL10.GL_UNSIGNED_BYTE, mCapIndexBuffer);
+		gl.glDrawElements(GL10.GL_TRIANGLES, dx*(dy-rh)*6, GL10.GL_UNSIGNED_BYTE, mCapIndexBuffer);
     }
 
-    
-    void buildTextures(GL10 gl) {
+	void buildTextures(GL10 gl) {
         mTextures=new int[2];
         
         gl.glGenTextures(2, mTextures, 0);
         
         buildRingTexture(gl);
         buildDialTexture(gl);
+        
+        mNeedTextureUpdate=false;
     }
     
     void buildRingTexture(GL10 gl) {
@@ -350,7 +392,8 @@ public class Turntable {
         for(int d=0; d<360; d+=30) {
         	// do not draw 0/90/180/270
         	int pos=d*length/360;
-        	if(d%90!=0) canvas.drawText(Integer.toString(360-d), pos, 30, p);
+        	int angle=mReversedRing ? (360+180-d)%360 : 360-d;
+        	if(d%90!=0) canvas.drawText(Integer.toString(angle), pos, 30, p);
         }
         
         // draw N/O/S/E
@@ -359,7 +402,11 @@ public class Turntable {
         p.setColor(0xffff0000);
         for(int d=0; d<=360; d+=90) {
         	int pos=d*length/360;
-        	canvas.drawText(CARDINAL_POINTS[(d/90)%4], pos, 50, p);
+        	if(mReversedRing) {
+        		canvas.drawText(CARDINAL_POINTS[((d+180)/90)%4], pos, 50, p);
+        	} else {
+        		canvas.drawText(CARDINAL_POINTS[(d/90)%4], pos, 50, p);
+        	}
         }
         
         p.setShader(new LinearGradient(0, 5, 0, 0, 0xffffffff, 0xff000000, Shader.TileMode.CLAMP));
@@ -475,4 +522,18 @@ public class Turntable {
         b.copyPixelsToBuffer(bb);
         gl.glTexImage2D(GL10.GL_TEXTURE_2D, 0, GL10.GL_RGBA, radius*2, radius*2, 0, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, bb);
     }
+
+	public void setDetailsLevel(int detailsLevel) {
+		if(detailsLevel!=mDetailsLevel) {
+			mDetailsLevel=detailsLevel;
+			mNeedObjectsUpdate=true;
+		}
+	}
+
+	public void setReversedRing(boolean reversedRing) {
+		if(reversedRing!=mReversedRing) {
+			mReversedRing=reversedRing;
+			mNeedTextureUpdate=true;
+		}
+	}
 }
