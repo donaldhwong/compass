@@ -19,16 +19,25 @@ package net.pierrox.mcompass;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MCompass extends Activity implements SensorEventListener {
+	private static final int MENU_SETTINGS=0;
+	private static final String KEY_DETAILS_PREFERENCE="details_preference";
+	private static final String KEY_REVERSED_RING_PREFERENCE="reversed_ring_preference";
+	
     private CompassRenderer mCompassRenderer;
     private GLSurfaceView mGLSurfaceView;
 	private TextView mHeadingView;
@@ -47,6 +56,9 @@ public class MCompass extends Activity implements SensorEventListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // set preferences default values
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         
         // initialize the ring buffer for orientation values
         mNumAngles=0;
@@ -88,6 +100,21 @@ public class MCompass extends Activity implements SensorEventListener {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // re-read preferences
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        int details;
+        String s=sharedPref.getString(KEY_DETAILS_PREFERENCE, "medium");
+        if(s.equals("low")) {
+        	details=0;
+        } else if(s.equals("high")) {
+        	details=2;
+        } else {
+        	details=1;
+        }
+        boolean reversedRing=sharedPref.getBoolean(KEY_REVERSED_RING_PREFERENCE, false);
+        mCompassRenderer.setParameters(details, reversedRing);
+        
         mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
         mGLSurfaceView.onResume();
     }
@@ -145,5 +172,21 @@ public class MCompass extends Activity implements SensorEventListener {
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		
+	}
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    menu.add(0, MENU_SETTINGS, 0, "Settings").setIcon(android.R.drawable.ic_menu_preferences);
+	    return true;
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_SETTINGS :
+			Intent myIntent = new Intent();
+			myIntent.setClassName(this, "net.pierrox.mcompass.Settings");
+			startActivity(myIntent);    
+			break;
+		}
+		return true;
 	}
 }

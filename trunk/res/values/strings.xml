@@ -2,4 +2,19 @@
 <resources>
     <string name="app_name">Marine Compass</string>
 <string name="app_description">A marine compass that always stays parallel to the floor</string>
+<string name="title_reversed_ring_preference">Reversed ring graduations</string>
+<string name="summary_reversed_ring_preference">Reverse the graduations on the ring so that it shows the actual heading</string>
+<string name="ui_preference">User interface</string>
+<string name="title_graphics_preference">Graphics</string>
+<string name="title_details_preference">Level of details</string>
+<string name="summary_details_preference">Increase the level of details for improved graphics</string>
+<string-array name="entries_details_preference"><item>Low</item>
+<item>Medium</item>
+<item>High</item>
+</string-array>
+<string-array name="entryvalues_details_preference"><item>low</item>
+<item>medium</item>
+<item>high</item>
+</string-array>
+<string name="dialog_title_details_preference">Choose the level of details</string>
 </resources>

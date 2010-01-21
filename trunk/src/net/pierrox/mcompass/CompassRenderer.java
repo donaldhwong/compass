@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Pierre Hébert <pierrox@pierrox.net>
+ * Copyright (C) 2009 Pierre Hï¿½bert <pierrox@pierrox.net>
  * http://www.pierrox.net/mcompass/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,5 +102,10 @@ class CompassRenderer implements GLSurfaceView.Renderer {
     	mAzimuth=azimuth;
     	mPitch=pitch;
     	mRoll=roll;
+    }
+    
+    public void setParameters(int detailsLevel, boolean reversedRing) {
+    	mTurnTable.setDetailsLevel(detailsLevel);
+    	mTurnTable.setReversedRing(reversedRing);
     }
 }
