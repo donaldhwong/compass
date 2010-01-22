@@ -32,9 +32,9 @@ import android.graphics.RadialGradient;
 import android.graphics.Shader;
 
 public class Turntable {
-	private static final int DETAIL_X[]={ 15, 25, 35 };
-	private static final int DETAIL_Y[]={ 3, 6, 9 };
-	private static final int RING_HEIGHT[]={ 2, 3, 4};
+	private static final int DETAIL_X[]={ 15, 25, 30 };
+	private static final int DETAIL_Y[]={ 3, 6, 6 };
+	private static final int RING_HEIGHT[]={ 2, 3, 3};
 	
 	private static final int TEXTURE_RING=0;
 	private static final int TEXTURE_DIAL=1;
