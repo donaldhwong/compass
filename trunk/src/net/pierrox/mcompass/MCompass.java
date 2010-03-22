@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -37,6 +38,7 @@ public class MCompass extends Activity implements SensorEventListener {
 	private static final int MENU_SETTINGS=0;
 	private static final String KEY_DETAILS_PREFERENCE="details_preference";
 	private static final String KEY_REVERSED_RING_PREFERENCE="reversed_ring_preference";
+	private static final String KEY_FULLSCREEN_PREFERENCE="fullscreen_preference";
 	
     private CompassRenderer mCompassRenderer;
     private GLSurfaceView mGLSurfaceView;
@@ -115,6 +117,14 @@ public class MCompass extends Activity implements SensorEventListener {
         boolean reversedRing=sharedPref.getBoolean(KEY_REVERSED_RING_PREFERENCE, false);
         mCompassRenderer.setParameters(details, reversedRing);
         
+        int fullscreen_flag;
+        if(sharedPref.getBoolean(KEY_FULLSCREEN_PREFERENCE, false)) {
+        	fullscreen_flag=WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        } else {
+        	fullscreen_flag=0;
+        }
+        getWindow().setFlags(fullscreen_flag, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
         mGLSurfaceView.onResume();
     }
@@ -166,7 +176,8 @@ public class MCompass extends Activity implements SensorEventListener {
 			float pitch=(float) Math.toDegrees(Math.atan2((double)mAngles[1][1], (double)mAngles[1][0]));
 			float roll=(float) Math.toDegrees(Math.atan2((double)mAngles[2][1], (double)mAngles[2][0]));
 			mCompassRenderer.setOrientation(azimuth, pitch, roll);
-			mHeadingView.setText("Heading: "+(int)azimuth+"°");
+			if(azimuth<0) azimuth=360+azimuth;
+			mHeadingView.setText(getString(R.string.heading)+": "+(int)azimuth+"°");
     	}
     }
 
@@ -175,7 +186,7 @@ public class MCompass extends Activity implements SensorEventListener {
 	}
 	
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    menu.add(0, MENU_SETTINGS, 0, "Settings").setIcon(android.R.drawable.ic_menu_preferences);
+	    menu.add(0, MENU_SETTINGS, 0, R.string.settings).setIcon(android.R.drawable.ic_menu_preferences);
 	    return true;
 	}
 	

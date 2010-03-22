@@ -17,4 +17,8 @@
 <item>high</item>
 </string-array>
 <string name="dialog_title_details_preference">Choose the level of details</string>
+<string name="fullscreen_preference">Fullscreen</string>
+<string name="summary_fullscreen_preference">Display the compass without the status bar</string>
+<string name="settings">Settings</string>
+<string name="heading">Heading</string>
 </resources>
