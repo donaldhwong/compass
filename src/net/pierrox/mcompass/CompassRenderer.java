@@ -61,6 +61,9 @@ class CompassRenderer implements GLSurfaceView.Renderer {
          gl.glEnable(GL10.GL_NORMALIZE);
          gl.glEnable(GL10.GL_COLOR_MATERIAL);
          
+         gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+         gl.glEnable(GL10.GL_BLEND);
+         
          float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
          float lightDiffuse[] = { 0.9f, 0.9f, 0.9f, 1.0f };
          float lightSpecular[] = { 1.0f, 1.0f, 1.0f, 1.0f };

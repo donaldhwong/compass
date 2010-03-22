@@ -358,6 +358,7 @@ public class Turntable {
         final int length=512;
         final int height=64;
         Bitmap b=Bitmap.createBitmap(length, height, Bitmap.Config.ARGB_8888);
+        b.eraseColor(0xff000000);
         Canvas canvas=new Canvas(b);
         
         Paint p=new Paint();
@@ -409,7 +410,7 @@ public class Turntable {
         	}
         }
         
-        p.setShader(new LinearGradient(0, 5, 0, 0, 0xffffffff, 0xff000000, Shader.TileMode.CLAMP));
+        p.setShader(new LinearGradient(0, 5, 0, 0, 0xff000000, 0xffffffff, Shader.TileMode.CLAMP));
         canvas.drawRect(0, 0, length, 5, p);
         
         /*BitmapDrawable bd=(BitmapDrawable)mContext.getResources().getDrawable(R.drawable.ruler);*/
@@ -429,7 +430,7 @@ public class Turntable {
         gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
         gl.glTexParameterx(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
         
-        final int radius=128;
+        final int radius=256;
         Bitmap b=Bitmap.createBitmap(radius*2, radius*2, Bitmap.Config.ARGB_8888);
         Canvas canvas=new Canvas(b);
         
@@ -437,8 +438,8 @@ public class Turntable {
         p.setAntiAlias(true);
 
         // external shaded ring
-        int colors[]={0xff000000, 0xff000000, 0xffffffff, 0xff000000};
-        float positions[]={0f, 0.94f, 0.95f, 1.0f};
+        int colors[]={0xff000000, 0xff000000, 0xffffffff, 0xff000000, 0x00000000};
+        float positions[]={0f, 0.94f, 0.95f, 0.98f, 1.0f};
         p.setShader(new RadialGradient(radius, radius, radius, colors, positions, Shader.TileMode.CLAMP));
         canvas.drawCircle(radius, radius, radius, p);
         p.setShader(null);
@@ -446,12 +447,12 @@ public class Turntable {
         // build the inner decoration, using two symmetrical paths
         Path pathl=new Path();
         pathl.moveTo(radius, radius/2);
-        pathl.lineTo(radius+10, radius-10);
+        pathl.lineTo(radius+20, radius-20);
         pathl.lineTo(radius, radius);
         pathl.close();
         Path pathr=new Path();
         pathr.moveTo(radius, radius/2);
-        pathr.lineTo(radius-10, radius-10);
+        pathr.lineTo(radius-20, radius-20);
         pathr.lineTo(radius, radius);
         pathr.close();
         canvas.save();
@@ -486,7 +487,7 @@ public class Turntable {
         }
         
         // medium graduation texts
-        p.setTextSize(12);
+        p.setTextSize(24);
         p.setTextAlign(Paint.Align.CENTER);
         p.setColor(0xffffffff);
         for(int i=0; i<360; i+=30) {
@@ -504,7 +505,7 @@ public class Turntable {
         }
 
         // draw N/O/S/E
-        p.setTextSize(20);
+        p.setTextSize(40);
         p.setColor(0xffff0000);
         for(int i=0; i<360; i+=90) {
         	double a = i*(Math.PI*2)/360;
