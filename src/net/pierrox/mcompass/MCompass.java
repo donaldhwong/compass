@@ -176,7 +176,7 @@ public class MCompass extends Activity implements SensorEventListener {
 			float pitch=(float) Math.toDegrees(Math.atan2((double)mAngles[1][1], (double)mAngles[1][0]));
 			float roll=(float) Math.toDegrees(Math.atan2((double)mAngles[2][1], (double)mAngles[2][0]));
 			mCompassRenderer.setOrientation(azimuth, pitch, roll);
-			if(azimuth<0) azimuth=360+azimuth;
+			if(azimuth<0) azimuth=(360+azimuth)%360;
 			mHeadingView.setText(getString(R.string.heading)+": "+(int)azimuth+"°");
     	}
     }
