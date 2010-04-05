@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">水羅盤</string>
+<string name="app_description">水羅盤始終和地面保持平行</string>
+<string name="title_reversed_ring_preference">反轉環刻度</string>
+<string name="summary_reversed_ring_preference">反轉環上的刻度以便看到實際航向</string>
+<string name="ui_preference">使用者介面</string>
+<string name="title_graphics_preference">圖形</string>
+<string name="title_details_preference">詳細程度</string>
+<string name="summary_details_preference">為改進的圖形提高詳細程度</string>
+<string-array name="entries_details_preference"><item>低</item>
+<item>中</item>
+<item>高</item>
+</string-array>
+<string-array name="entryvalues_details_preference"><item>低</item>
+<item>中</item>
+<item>高</item>
+</string-array>
+<string name="dialog_title_details_preference">選擇詳細程度</string>
+<string name="fullscreen_preference">Fullscreen</string>
+<string name="summary_fullscreen_preference">Display the compass without the status bar</string>
+<string name="settings">Settings</string>
+<string name="heading">Heading</string>
+</resources>

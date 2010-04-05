@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Boussole Marine</string>
-<string name="app_description">Une boussole marine qui reste horizontale quelle que soit la position de l'appareil</string>
+<string name="app_description">Une boussole marine qui reste horizontale quelle que soit la position de l\'appareil</string>
 <string name="title_reversed_ring_preference">Graduations inversée</string>
 <string name="summary_reversed_ring_preference">Inversion des graduations de l\'anneau (indique la direction actuelle)</string>
 <string name="ui_preference">Interface utilisateur</string>
@@ -18,7 +18,7 @@
 </string-array>
 <string name="dialog_title_details_preference">Choisissez le niveau de détail</string>
 <string name="fullscreen_preference">Plein écran</string>
-<string name="summary_fullscreen_preference">Masque la barre d'état</string>
+<string name="summary_fullscreen_preference">Masque la barre d\'état</string>
 <string name="settings">Paramètres</string>
 <string name="heading">Direction</string>
 </resources>
