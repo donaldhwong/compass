@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ Hungarian translation / Magyar fordítás: http://www.androida.hu/
+ -->
+<resources>
+    <string name="app_name">Marine Compass</string>
+<string name="app_description">Egy iránytű, ami mindig párhuzamos marad a talajjal</string>
+<string name="title_reversed_ring_preference">Fordított oldalbeosztás</string>
+<string name="summary_reversed_ring_preference">Fordítsa meg a beosztást az oldalán, hogy mindig az aktuális irányt mutassa</string>
+<string name="ui_preference">Felhasználói felület</string>
+<string name="title_graphics_preference">Grafika</string>
+<string name="title_details_preference">Részletesség szintje</string>
+<string name="summary_details_preference">Emelje a részletesség szintjét a jobb grafikához</string>
+<string-array name="entries_details_preference"><item>Alacsony</item>
+<item>Közepes</item>
+<item>Magas</item>
+</string-array>
+<string-array name="entryvalues_details_preference"><item>alacsony</item>
+<item>közepes</item>
+<item>magas</item>
+</string-array>
+<string name="dialog_title_details_preference">Válassza ki a részletesség szintjét</string>
+<string name="fullscreen_preference">Teljes képernyő</string>
+<string name="summary_fullscreen_preference">Az iránytű az állapot sáv nélkül jelenjen meg</string>
+<string name="settings">Beállítások</string>
+<string name="heading">Irány</string>
+</resources>
