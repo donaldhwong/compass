@@ -17,8 +17,8 @@
 <item>高</item>
 </string-array>
 <string name="dialog_title_details_preference">選擇詳細程度</string>
-<string name="fullscreen_preference">Fullscreen</string>
-<string name="summary_fullscreen_preference">Display the compass without the status bar</string>
-<string name="settings">Settings</string>
-<string name="heading">Heading</string>
+<string name="fullscreen_preference">全螢幕</string>
+<string name="summary_fullscreen_preference">顯示羅盤無狀態列</string>
+<string name="settings">設定</string>
+<string name="heading">標題</string>
 </resources>
